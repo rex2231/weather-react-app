@@ -41,22 +41,25 @@ function Weather() {
    * Handles the search action when the Enter key is pressed.
    * Fetches geolocation data and then weather data based on the user's input location.
    */
-  const searchLocation = (event) => {
+  const searchLocation = async (event) => {
     if (event.key === "Enter") {
-      axios.get(geoLocationUrl).then((response) => { // Fetch geolocation data
-        if (response.data.length > 0) {
-          const { lat, lon } = response.data[0];
+      try {
+        const geoResponse = await axios.get(geoLocationUrl); // Fetch geolocation data
+        if (geoResponse.data.length > 0) {
+          const { lat, lon } = geoResponse.data[0];
           const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=06f548de4f05575289aab50c091bac4b`;
-          axios.get(weatherUrl).then((response) => {  // Fetch weather data
-            const updatedData = convertKeysToCamelCase(response.data);
-            console.log(updatedData);
-            setData(updatedData);
-          });
+          const weatherResponse = await axios.get(weatherUrl); // Fetch weather data
+          const updatedData = convertKeysToCamelCase(weatherResponse.data);
+          console.log(updatedData);
+          setData(updatedData);
         } else {
           alert("Location not found.");
         }
         setLocation("");
-      });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Handle errors, e.g., display an error message to the user
+      }
     }
   };
 
